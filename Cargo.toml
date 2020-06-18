@@ -9,6 +9,14 @@ embedded-hal = "0.2.3"
 cortex-m = "0.6.0"
 nb = "0.1.2"
 
+[dependencies.enum-primitive-derive]
+path = "/Users/zklapow/dev/personal/embedded/test"
+
+[dependencies.num-traits]
+version = "^0.2"
+default-features = false
+features = ["libm"]
+
 [dev-dependencies]
 cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"

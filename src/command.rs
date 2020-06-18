@@ -1,3 +1,5 @@
+use crate::register::Register;
+use core::marker::PhantomData;
 use core::ops::BitXor;
 
 enum RwMode {
@@ -8,44 +10,44 @@ enum RwMode {
 const ADDR_MASK: u8 = 0b00001111;
 const DATA_MASK: u16 = 0b1111100000000000;
 
-pub enum Register {
-    WarningAndWatchdog = 0x1,
-    ICFaults = 0x3,
-    VdsSenseControl = 0xC,
-    VoltageRegulatorControl = 0xB,
-    HsGateDriveControl = 0x5,
-    LsGateDriveControl = 0x6,
-}
-
-pub struct SpiCommand {
+pub struct SpiCommand<REG>
+where
+    REG: Register,
+{
     rw: RwMode,
-    register: Register,
     data: u16,
+    _register: PhantomData<REG>,
 }
 
-impl SpiCommand {
-    pub fn write(register: Register, data: u16) -> SpiCommand {
+impl<T> SpiCommand<T>
+where
+    T: Register,
+{
+    pub fn write(data: u16) -> SpiCommand<T> {
         assert!(data & DATA_MASK == 0, "Data cannot be more than 11 bytes");
 
         SpiCommand {
             rw: RwMode::Write,
-            register,
+            _register: PhantomData,
             data,
         }
     }
 
-    pub fn read(register: Register) -> SpiCommand {
+    pub fn read() -> SpiCommand<T> {
         SpiCommand {
             rw: RwMode::Read,
-            register,
+            _register: PhantomData,
             data: 0,
         }
     }
 }
 
-impl From<SpiCommand> for u16 {
-    fn from(cmd: SpiCommand) -> u16 {
-        let addr_val = (cmd.register as u8 & ADDR_MASK) as u16;
+impl<REG> From<SpiCommand<REG>> for u16
+where
+    REG: Register,
+{
+    fn from(cmd: SpiCommand<REG>) -> u16 {
+        let addr_val = (REG::addr() as u8 & ADDR_MASK) as u16;
         let rw_val: u16 = cmd.rw as u16;
         return (rw_val << 15) | (addr_val as u16) << 11 | cmd.data as u16;
     }

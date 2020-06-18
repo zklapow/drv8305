@@ -14,7 +14,8 @@ use stm32f3xx_hal as hal;
 use cortex_m_semihosting::{debug, hprintln};
 use panic_semihosting as _;
 
-use drv8305::{Drv8305, Register, SpiCommand};
+use drv8305::register::Register;
+use drv8305::{register::*, Drv8305};
 use stm32f3xx_hal::gpio::{Output, PushPull};
 
 type Drv = Drv8305<
@@ -87,10 +88,11 @@ const APP: () = {
 
         loop {
             cortex_m::asm::delay(1_000_000);
-            let val = drv
-                .exec(SpiCommand::read(Register::WarningAndWatchdog))
-                .unwrap();
-            hprintln!("got {}", val);
+            hprintln!("l");
+            // let val = drv
+            //     .exec(SpiCommand::read(Register::WarningAndWatchdog))
+            //     .unwrap();
+            // hprintln!("got {}", val);
         }
     }
 };
@@ -99,9 +101,24 @@ fn configure_drv(drv: &mut Drv) -> u16 {
     const VDS_LEVEL: u8 = 0b00010;
 
     let data = (VDS_LEVEL << 3) as u16;
-    drv.exec(SpiCommand::write(Register::VdsSenseControl, data))
-        .unwrap();
 
-    drv.exec(SpiCommand::read(Register::VdsSenseControl))
-        .unwrap()
+    let data = drv
+        .modify(|gdc: GateDriveControl| {
+            gdc.set_comm_option(CommOption::Active)
+                .set_pwm_mode(PwmMode::One)
+        })
+        .unwrap();
+    hprintln!("Intial val: {:?}", data.data());
+
+    let read_data = drv.read::<GateDriveControl>().unwrap();
+    hprintln!("Final val: {:?}", read_data.data());
+
+    // let data = drv.modify(|w: GateDriveControl| {
+    //     w.set_comm_option(CommOption::Active)
+    //         .set_pwm_mode(PwmMode::One)
+    // }).unwrap();
+
+    //hprintln!("Set gate control to {}", )
+
+    0
 }

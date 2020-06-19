@@ -10,8 +10,7 @@ cortex-m = "0.6.0"
 nb = "0.1.2"
 
 [dependencies.enum-primitive-derive]
-git = "https://gitlab.com/zklapow/enum-primitive-derive.git"
-branch = "no-std"
+git = "https://gitlab.com/cardoe/enum-primitive-derive.git"
 
 [dependencies.num-traits]
 version = "^0.2"

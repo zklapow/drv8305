@@ -1,6 +1,5 @@
 use crate::register::Register;
 use core::marker::PhantomData;
-use core::ops::BitXor;
 
 enum RwMode {
     Read = 1,

@@ -7,18 +7,18 @@ extern crate enum_primitive_derive;
 mod command;
 pub mod register;
 
-use embedded_hal::blocking::spi::Transfer;
-use embedded_hal::digital::v2::{OutputPin, StatefulOutputPin};
+use embedded_hal::digital::v2::StatefulOutputPin;
 use embedded_hal::spi::FullDuplex;
 use nb::block;
 
 pub use crate::command::SpiCommand;
 use crate::register::Register;
+use core::fmt::{Debug, Error};
 
 pub struct Drv8305<SPI, NSCS>
 where
     SPI: FullDuplex<u16>,
-    NSCS: StatefulOutputPin,
+    NSCS: StatefulOutputPin<Error = Error>, // NOTE: Associated type bounds needed for core::fmt impl to make `unwrap` work... this seems like bad ergonomics?
 {
     spi: SPI,
     nscs: NSCS,
@@ -27,7 +27,7 @@ where
 impl<SPI, NSCS> Drv8305<SPI, NSCS>
 where
     SPI: FullDuplex<u16>,
-    NSCS: StatefulOutputPin,
+    NSCS: StatefulOutputPin<Error = Error>,
 {
     pub fn new(spi: SPI, nscs: NSCS) -> Drv8305<SPI, NSCS> {
         Drv8305 { spi, nscs }
@@ -62,7 +62,7 @@ where
     {
         let data: u16 = cmd.into();
 
-        self.nscs.set_low();
+        self.nscs.set_low().unwrap();
         // Give the drv at least 50ns to prepare
         cortex_m::asm::delay(8);
 

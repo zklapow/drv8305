@@ -29,6 +29,12 @@ pub enum VdsMode {
     Disabled = 2,
 }
 
+#[derive(Copy, Clone, Primitive)]
+pub enum Flag {
+    Enabled = 1,
+    Disabled = 0,
+}
+
 macro_rules! register {
     (struct $name: ident [$addr: expr] { $($var: ident: $kind: ty [$size: expr, $offset: expr]),+ }) => {
         #[derive(Copy, Clone)]
@@ -68,6 +74,11 @@ macro_rules! register {
         }
     };
 }
+
+register!(struct IcOperation [0x9]{
+    en_sns_clamp: Flag [0b1, 7],
+    wd_en: Flag [0b1, 3]
+});
 
 register!(struct VdsSenseControl [0xc] {
     vds_level: u16 [0b1111, 3],

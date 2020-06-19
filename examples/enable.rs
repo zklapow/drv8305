@@ -103,10 +103,7 @@ fn configure_drv(drv: &mut Drv) -> u16 {
     let data = (VDS_LEVEL << 3) as u16;
 
     let data = drv
-        .modify(|gdc: GateDriveControl| {
-            gdc.set_comm_option(CommOption::Active)
-                .set_pwm_mode(PwmMode::One)
-        })
+        .modify(|gdc: GateDriveControl| gdc.comm_option(CommOption::Active).pwm_mode(PwmMode::One))
         .unwrap();
     hprintln!("Intial val: {:?}", data.data());
 

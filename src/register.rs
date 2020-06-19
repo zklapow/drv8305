@@ -1,4 +1,5 @@
 use num_traits::cast::FromPrimitive;
+use num_traits::ToPrimitive;
 
 pub trait Register {
     fn addr() -> u8;
@@ -6,16 +7,6 @@ pub trait Register {
     fn parse(reg: u16) -> Self;
 
     fn data(&self) -> u16;
-}
-
-#[derive(Copy, Clone)]
-pub enum Addrs {
-    WarningAndWatchdog = 0x1,
-    ICFaults = 0x3,
-    VdsSenseControl = 0xC,
-    VoltageRegulatorControl = 0xB,
-    HsGateDriveControl = 0x5,
-    LsGateDriveControl = 0x6,
 }
 
 #[derive(Copy, Clone, Primitive)]
@@ -31,51 +22,62 @@ pub enum PwmMode {
     One = 2,
 }
 
-#[derive(Copy, Clone)]
-pub struct GateDriveControl {
-    bits: u16,
-    comm_option: CommOption,
-    pwm_mode: PwmMode,
+#[derive(Copy, Clone, Primitive)]
+pub enum VdsMode {
+    Latched = 0,
+    Report = 1,
+    Disabled = 2,
 }
 
-// width shifted by start of range from datasheet
-const COMM_OPTION_MASK: u16 = 0b1 << 9;
-const PWM_MODE_MASK: u16 = 0b11 << 7;
-
-impl GateDriveControl {
-    pub fn set_comm_option(mut self, comm_option: CommOption) -> Self {
-        self.comm_option = comm_option;
-        self
-    }
-
-    pub fn set_pwm_mode(mut self, pwm_mode: PwmMode) -> Self {
-        self.pwm_mode = pwm_mode;
-        self
-    }
-}
-
-impl Register for GateDriveControl {
-    fn addr() -> u8 {
-        return 0x7;
-    }
-
-    fn parse(reg: u16) -> Self {
-        let comm_option_val = CommOption::from_u16((reg & COMM_OPTION_MASK) >> 9).unwrap();
-        let pwm_mode_val = PwmMode::from_u16((reg & PWM_MODE_MASK) >> 7).unwrap();
-
-        GateDriveControl {
-            bits: reg,
-            comm_option: comm_option_val,
-            pwm_mode: pwm_mode_val,
+macro_rules! register {
+    (struct $name: ident [$addr: expr] { $($var: ident: $kind: ty [$size: expr, $offset: expr]),+ }) => {
+        #[derive(Copy, Clone)]
+        pub struct $name {
+            bits: u16,
+            $($var: $kind,)*
         }
-    }
 
-    fn data(&self) -> u16 {
-        let mut data = self.bits;
+        impl $name {
+        $(
+            pub fn $var(mut self, $var: $kind) -> Self {
+                self.$var = $var;
+                self
+            }
+        )*
+        }
 
-        data = (data & !COMM_OPTION_MASK) | ((self.comm_option as u16) << 9);
-        data = (data & !PWM_MODE_MASK) | ((self.pwm_mode as u16) << 7);
+        impl Register for $name {
+            fn addr() -> u8 {
+                return $addr;
+            }
 
-        data
-    }
+            fn parse(reg: u16) -> Self {
+                $name {
+                    bits: reg,
+                    $($var: <$kind>::from_u16((reg & ($size << $offset)) >> $offset).unwrap(),)*
+                }
+            }
+
+            fn data(&self) -> u16 {
+                let mut data = self.bits;
+
+                $(data = (data & !($size << $offset)) | (self.$var.to_u16().unwrap() << $offset);)*
+
+                data
+            }
+        }
+    };
 }
+
+register!(struct VdsSenseControl [0xc] {
+    vds_level: u16 [0b1111, 3],
+    vds_mode: VdsMode [0b111, 0]
+});
+
+register!(
+    struct GateDriveControl [0x7] {
+        comm_option: CommOption [0b1, 9],
+        pwm_mode: PwmMode [0b11, 7],
+        dead_time: u8 [0b111, 4]
+    }
+);

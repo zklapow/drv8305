@@ -13,12 +13,12 @@ use nb::block;
 
 pub use crate::command::SpiCommand;
 use crate::register::Register;
-use core::fmt::{Debug, Error};
+use core::convert::Infallible;
 
 pub struct Drv8305<SPI, NSCS>
 where
     SPI: FullDuplex<u16>,
-    NSCS: StatefulOutputPin<Error = Error>, // NOTE: Associated type bounds needed for core::fmt impl to make `unwrap` work... this seems like bad ergonomics?
+    NSCS: StatefulOutputPin<Error = Infallible>, // NOTE: Associated type bounds needed for core::fmt impl to make `unwrap` work... this seems like bad ergonomics?
 {
     spi: SPI,
     nscs: NSCS,
@@ -27,7 +27,7 @@ where
 impl<SPI, NSCS> Drv8305<SPI, NSCS>
 where
     SPI: FullDuplex<u16>,
-    NSCS: StatefulOutputPin<Error = Error>,
+    NSCS: StatefulOutputPin<Error = Infallible>,
 {
     pub fn new(spi: SPI, nscs: NSCS) -> Drv8305<SPI, NSCS> {
         Drv8305 { spi, nscs }
@@ -70,7 +70,7 @@ where
         let res = block!(self.spi.read());
 
         // Make sure scs is high for at least 500ns between frames
-        self.nscs.set_high();
+        self.nscs.set_high().unwrap();
         cortex_m::asm::delay(32);
 
         res

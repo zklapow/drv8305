@@ -1,6 +1,9 @@
 use num_traits::cast::FromPrimitive;
 use num_traits::ToPrimitive;
 
+#[cfg(feature = "use-defmt")]
+use defmt::Format;
+
 pub trait Register {
     fn addr() -> u8;
 
@@ -10,12 +13,14 @@ pub trait Register {
 }
 
 #[derive(Copy, Clone, Primitive, Debug)]
+#[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum CommOption {
     Diode = 0,
     Active = 1,
 }
 
 #[derive(Copy, Clone, Primitive, Debug)]
+#[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum PwmMode {
     Six = 0,
     Three = 1,
@@ -23,6 +28,7 @@ pub enum PwmMode {
 }
 
 #[derive(Copy, Clone, Primitive, Debug)]
+#[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum VdsMode {
     Latched = 0,
     Report = 1,
@@ -30,6 +36,7 @@ pub enum VdsMode {
 }
 
 #[derive(Copy, Clone, Primitive, Debug)]
+#[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum Flag {
     Enabled = 1,
     Disabled = 0,
@@ -38,6 +45,7 @@ pub enum Flag {
 macro_rules! register {
     (struct $name: ident [$addr: expr] { $($var: ident: $kind: ty [$size: expr, $offset: expr]),+ }) => {
         #[derive(Copy, Clone, Debug)]
+        #[cfg_attr(feature = "use-defmt", derive(Format))]
         pub struct $name {
             pub bits: u16,
             $(pub $var: $kind,)*

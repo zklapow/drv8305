@@ -19,6 +19,11 @@ git = "https://gitlab.com/cardoe/enum-primitive-derive.git"
 version = "^0.2"
 default-features = false
 
+[dependencies.defmt]
+git = "https://github.com/knurling-rs/defmt"
+branch = "main"
+optional = true
+
 [dev-dependencies]
 cortex-m = "0.6.0"
 cortex-m-rt = "0.6.10"
@@ -30,3 +35,7 @@ panic-semihosting = "0.5.3"
 git = "https://github.com/zklapow/stm32f3xx-hal.git"
 rev = "b2607e1"
 features = ["stm32f302xb"]
+
+[features]
+default = ["use-defmt"]
+use-defmt = ["defmt"]

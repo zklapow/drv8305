@@ -93,6 +93,16 @@ register!(struct VdsSenseControl [0xc] {
     vds_mode: VdsMode [0b111, 0]
 });
 
+register!(struct ShuntAmplifierControl [0xa] {
+    dc_cal_ch3: Flag [0b1, 10],
+    dc_cal_ch2: Flag [0b1, 9],
+    dc_cal_ch1: Flag [0b1, 8],
+    cs_blank: u16 [0b11, 6],
+    gain_cs3: u16 [0b11, 4],
+    gain_cs2: u16 [0b1l, 2],
+    gain_cs1: u16 [0b11, 0]
+});
+
 register!(
     struct GateDriveControl [0x7] {
         comm_option: CommOption [0b1, 9],

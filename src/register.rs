@@ -99,7 +99,7 @@ register!(struct ShuntAmplifierControl [0xa] {
     dc_cal_ch1: Flag [0b1, 8],
     cs_blank: u16 [0b11, 6],
     gain_cs3: u16 [0b11, 4],
-    gain_cs2: u16 [0b1l, 2],
+    gain_cs2: u16 [0b11, 2],
     gain_cs1: u16 [0b11, 0]
 });
 

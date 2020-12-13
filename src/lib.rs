@@ -2,7 +2,7 @@
 #![allow(non_camel_case_types)]
 
 #[macro_use]
-extern crate enum_primitive_derive;
+extern crate enum_primitive_derive_nostd;
 
 mod command;
 pub mod register;

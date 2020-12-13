@@ -85,7 +85,8 @@ macro_rules! register {
 
 register!(struct IcOperation [0x9]{
     en_sns_clamp: Flag [0b1, 7],
-    wd_en: Flag [0b1, 3]
+    wd_en: Flag [0b1, 3],
+    wd_dly: u8 [0b11, 5]
 });
 
 register!(struct VdsSenseControl [0xc] {

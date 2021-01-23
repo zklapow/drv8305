@@ -12,14 +12,14 @@ pub trait Register {
     fn data(&self) -> u16;
 }
 
-#[derive(Copy, Clone, Primitive, Debug)]
+#[derive(Copy, Clone, Primitive, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum CommOption {
     Diode = 0,
     Active = 1,
 }
 
-#[derive(Copy, Clone, Primitive, Debug)]
+#[derive(Copy, Clone, Primitive, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum PwmMode {
     Six = 0,
@@ -27,7 +27,7 @@ pub enum PwmMode {
     One = 2,
 }
 
-#[derive(Copy, Clone, Primitive, Debug)]
+#[derive(Copy, Clone, Primitive, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum VdsMode {
     Latched = 0,
@@ -35,11 +35,17 @@ pub enum VdsMode {
     Disabled = 2,
 }
 
-#[derive(Copy, Clone, Primitive, Debug)]
+#[derive(Copy, Clone, Primitive, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "use-defmt", derive(Format))]
 pub enum Flag {
     Enabled = 1,
     Disabled = 0,
+}
+
+impl Flag {
+    pub fn enabled(&self) -> bool {
+        matches!(self, Flag::Enabled)
+    }
 }
 
 macro_rules! register {

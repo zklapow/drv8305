@@ -1,6 +1,6 @@
 [package]
 name = "drv8305"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Ze'ev Klapow <zklapow@gmail.com>"]
 edition = "2018"
 description = "A I2C driver for the DRV8305 BLDC motor driver IC"
@@ -20,7 +20,7 @@ version = "^0.2"
 default-features = false
 
 [dependencies.defmt]
-version = "0.1.0"
+version = "~0.2"
 optional = true
 
 [dev-dependencies]
